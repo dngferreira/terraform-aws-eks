@@ -33,18 +33,18 @@ resource "null_resource" "enable_prefix_delegation" {
   }
 
   provisioner "local-exec" {
-    command = "aws eks --region ${var.aws_region} update-kubeconfig --name ${var.cluster_name}"
+    command = "aws eks --region ${var.cluster_region} update-kubeconfig --name ${var.cluster_name}"
+  }
+
+  # download kubectl
+  provisioner "local-exec" {
+    command = "curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.3/bin/linux/amd64/kubectl && chmod +x kubectl"
   }
 
   # # download kubectl
   # provisioner "local-exec" {
-  #   command = "curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.3/bin/linux/amd64/kubectl && chmod +x kubectl"
+  #   command = "curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.3/bin/darwin/amd64/kubectl && chmod +x kubectl"
   # }
-
-  # download kubectl
-  provisioner "local-exec" {
-    command = "curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.3/bin/darwin/amd64/kubectl && chmod +x kubectl"
-  }
 
 
   # run kubectl

@@ -26,6 +26,12 @@ variable "cluster_name" {
   default     = ""
 }
 
+variable "cluster_region" {
+  description = "Region of the EKS cluster"
+  type        = string
+  default     = ""
+}
+
 variable "cluster_version" {
   description = "Kubernetes `<major>.<minor>` version to use for the EKS cluster (i.e.: `1.21`)"
   type        = string
