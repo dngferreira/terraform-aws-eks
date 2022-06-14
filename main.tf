@@ -314,7 +314,6 @@ resource "aws_eks_addon" "this" {
 
   lifecycle {
     ignore_changes = [
-      modified_at
     ]
   }
 
