@@ -371,6 +371,13 @@ variable "cluster_addons" {
   default     = {}
 }
 
+variable "vpc_cni_enable_prefix_delegation" {
+  description = "Enable prefix delegation on the vpc-cni deamonset"
+  type        = bool
+  default     = true
+
+}
+
 ################################################################################
 # EKS Identity Provider
 ################################################################################
