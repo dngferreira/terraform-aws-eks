@@ -348,6 +348,9 @@ resource "aws_eks_node_group" "this" {
     var.tags,
     { Name = var.name }
   )
+  depends_on = [
+    null_resource.enable_prefix_delegation
+  ]
 }
 
 ################################################################################
@@ -442,7 +445,9 @@ resource "aws_iam_role" "this" {
 
   tags = merge(var.tags, var.iam_role_tags)
 }
-
+locals{
+  
+}
 # Policies attached ref https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_node_group
 resource "aws_iam_role_policy_attachment" "this" {
   for_each = var.create && var.create_iam_role ? toset(compact(distinct(concat([
@@ -453,9 +458,4 @@ resource "aws_iam_role_policy_attachment" "this" {
 
   policy_arn = each.value
   role       = aws_iam_role.this[0].name
-
-  depends_on = [
-    local.cni_policy,
-    local.iam_role_policy_prefix 
-  ]
 }

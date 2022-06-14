@@ -235,9 +235,12 @@ module "eks_managed_node_group" {
   create = try(each.value.create, true)
 
   cluster_name              = aws_eks_cluster.this[0].name
+  cluster_region            = var.cluster_region
   cluster_version           = try(each.value.cluster_version, var.eks_managed_node_group_defaults.cluster_version, aws_eks_cluster.this[0].version)
   cluster_security_group_id = local.cluster_security_group_id
   cluster_ip_family         = var.cluster_ip_family
+
+  vpc_cni_enable_prefix_delegation = var.vpc_cni_enable_prefix_delegation
 
   # EKS Managed Node Group
   name            = try(each.value.name, each.key)
@@ -330,9 +333,6 @@ module "eks_managed_node_group" {
 
   tags = merge(var.tags, try(each.value.tags, var.eks_managed_node_group_defaults.tags, {}))
 
-  depends_on = [
-    aws_eks_addon.vpc-cni
-  ]
 }
 
 ################################################################################

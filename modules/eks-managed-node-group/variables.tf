@@ -32,6 +32,12 @@ variable "cluster_name" {
   default     = null
 }
 
+variable "cluster_region" {
+  description = "Region of the EKS cluster"
+  type        = string
+  default     = ""
+}
+
 variable "cluster_endpoint" {
   description = "Endpoint of associated EKS cluster"
   type        = string
@@ -73,6 +79,14 @@ variable "user_data_template_path" {
   type        = string
   default     = ""
 }
+
+variable "vpc_cni_enable_prefix_delegation" {
+  description = "Enable prefix delegation on the vpc-cni deamonset"
+  type        = bool
+  default     = true
+
+}
+
 
 ################################################################################
 # Launch template
