@@ -240,7 +240,7 @@ module "eks_managed_node_group" {
   cluster_security_group_id = local.cluster_security_group_id
   cluster_ip_family         = var.cluster_ip_family
 
-  vpc_cni_enable_prefix_delegation = var.vpc_cni_enable_prefix_delegation
+  vpc_cni_enable_prefix_delegation = try(each.value.vpc_cni_enable_prefix_delegation, var.vpc_cni_enable_prefix_delegation)
 
   # EKS Managed Node Group
   name            = try(each.value.name, each.key)
