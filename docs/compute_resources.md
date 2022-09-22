@@ -2,10 +2,10 @@
 
 ## Table of Contents
 
-- [EKS Managed Node Groups](https://github.com/terraform-aws-module/terraform-aws-eks/blob/master/docs/node_groups.md#eks-managed-node-groups)
-- [Self Managed Node Groups](https://github.com/terraform-aws-module/terraform-aws-eks/blob/master/docs/node_groups.md#self-managed-node-groups)
-- [Fargate Profiles](https://github.com/terraform-aws-module/terraform-aws-eks/blob/master/docs/node_groups.md#fargate-profiles)
-- [Default Configurations](https://github.com/terraform-aws-module/terraform-aws-eks/blob/master/docs/node_groups.md#default-configurations)
+- [EKS Managed Node Groups](https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/docs/compute_resources.md#eks-managed-node-groups)
+- [Self Managed Node Groups](https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/docs/compute_resources.md#self-managed-node-groups)
+- [Fargate Profiles](https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/docs/compute_resources.md#fargate-profiles)
+- [Default Configurations](https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/docs/compute_resources.md#default-configurations)
 
 ℹ️ Only the pertinent attributes are shown below for brevity
 
@@ -141,9 +141,9 @@ Refer to the [Self Managed Node Group documentation](https://docs.aws.amazon.com
 1. The `self-managed-node-group` uses the latest AWS EKS Optimized AMI (Linux) for the given Kubernetes version by default:
 
 ```hcl
-  cluster_version = "1.21"
+  cluster_version = "1.22"
 
-  # This self managed node group will use the latest AWS EKS Optimized AMI for Kubernetes 1.21
+  # This self managed node group will use the latest AWS EKS Optimized AMI for Kubernetes 1.22
   self_managed_node_groups = {
     default = {}
   }
@@ -152,7 +152,7 @@ Refer to the [Self Managed Node Group documentation](https://docs.aws.amazon.com
 2. To use Bottlerocket, specify the `platform` as `bottlerocket` and supply a Bottlerocket OS AMI:
 
 ```hcl
-  cluster_version = "1.21"
+  cluster_version = "1.22"
 
   self_managed_node_groups = {
     bottlerocket = {

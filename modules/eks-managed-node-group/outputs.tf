@@ -17,6 +17,11 @@ output "launch_template_latest_version" {
   value       = try(aws_launch_template.this[0].latest_version, "")
 }
 
+output "launch_template_name" {
+  description = "The name of the launch template"
+  value       = try(aws_launch_template.this[0].name, "")
+}
+
 ################################################################################
 # Node Group
 ################################################################################
@@ -44,6 +49,16 @@ output "node_group_autoscaling_group_names" {
 output "node_group_status" {
   description = "Status of the EKS Node Group"
   value       = try(aws_eks_node_group.this[0].arn, "")
+}
+
+output "node_group_labels" {
+  description = "Map of labels applied to the node group"
+  value       = try(aws_eks_node_group.this[0].labels, {})
+}
+
+output "node_group_taints" {
+  description = "List of objects containing information about taints applied to the node group"
+  value       = try(aws_eks_node_group.this[0].taint, [])
 }
 
 ################################################################################
