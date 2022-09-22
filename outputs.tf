@@ -48,6 +48,25 @@ output "cluster_primary_security_group_id" {
 }
 
 ################################################################################
+# KMS Key
+################################################################################
+
+output "kms_key_arn" {
+  description = "The Amazon Resource Name (ARN) of the key"
+  value       = module.kms.key_arn
+}
+
+output "kms_key_id" {
+  description = "The globally unique identifier for the key"
+  value       = module.kms.key_id
+}
+
+output "kms_key_policy" {
+  description = "The IAM resource policy set on the key"
+  value       = module.kms.key_policy
+}
+
+################################################################################
 # Cluster Security Group
 ################################################################################
 
@@ -160,7 +179,7 @@ output "eks_managed_node_groups" {
 
 output "eks_managed_node_groups_autoscaling_group_names" {
   description = "List of the autoscaling group names created by EKS managed node groups"
-  value       = flatten([for group in module.eks_managed_node_group : group.node_group_autoscaling_group_names])
+  value       = compact(flatten([for group in module.eks_managed_node_group : group.node_group_autoscaling_group_names]))
 }
 
 ################################################################################
@@ -174,7 +193,7 @@ output "self_managed_node_groups" {
 
 output "self_managed_node_groups_autoscaling_group_names" {
   description = "List of the autoscaling group names created by self-managed node groups"
-  value       = [for group in module.self_managed_node_group : group.autoscaling_group_name]
+  value       = compact([for group in module.self_managed_node_group : group.autoscaling_group_name])
 }
 
 ################################################################################

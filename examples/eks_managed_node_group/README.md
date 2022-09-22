@@ -14,7 +14,7 @@ See the [AWS documentation](https://docs.aws.amazon.com/eks/latest/userguide/man
 
 ## Container Runtime & User Data
 
-When using the default AMI provided by the EKS Managed Node Group service (i.e. - not specifying a value for `ami_id`), users should be aware of the limitations of configuring the node bootstrap process via user data. Due to not having direct access to the bootrap.sh script invocation and therefore its configuration flags (this is provide by the EKS Managed Node Group service in the node user data), a work around for ensuring the appropriate configuration settings is shown below. The following example shows how to inject configuration variables ahead of the merged user data provided by the EKS Managed Node Group service as well as how to enable the containerd runtime using this approach. More details can be found [here](https://github.com/awslabs/amazon-eks-ami/issues/844).
+When using the default AMI provided by the EKS Managed Node Group service (i.e. - not specifying a value for `ami_id`), users should be aware of the limitations of configuring the node bootstrap process via user data. Due to not having direct access to the bootrap.sh script invocation and therefore its configuration flags (this is provided by the EKS Managed Node Group service in the node user data), a workaround for ensuring the appropriate configuration settings is shown below. The following example shows how to inject configuration variables ahead of the merged user data provided by the EKS Managed Node Group service as well as how to enable the containerd runtime using this approach. More details can be found [here](https://github.com/awslabs/amazon-eks-ami/issues/844).
 
 ```hcl
   ...
@@ -34,6 +34,7 @@ When using the default AMI provided by the EKS Managed Node Group service (i.e. 
     EOF
     # Source extra environment variables in bootstrap script
     sed -i '/^set -o errexit/a\\nsource /etc/profile.d/bootstrap.sh' /etc/eks/bootstrap.sh
+    sed -i 's/KUBELET_EXTRA_ARGS=$2/KUBELET_EXTRA_ARGS="$2 $KUBELET_EXTRA_ARGS"/' /etc/eks/bootstrap.sh
     EOT
   }
   ...
@@ -59,14 +60,14 @@ Note that this example may create resources which cost money. Run `terraform des
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.1 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.72 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | >= 2.10 |
-| <a name="requirement_tls"></a> [tls](#requirement\_tls) | >= 2.2 |
+| <a name="requirement_tls"></a> [tls](#requirement\_tls) | >= 3.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.72 |
-| <a name="provider_tls"></a> [tls](#provider\_tls) | >= 2.2 |
+| <a name="provider_tls"></a> [tls](#provider\_tls) | >= 3.0 |
 
 ## Modules
 
@@ -80,6 +81,7 @@ Note that this example may create resources which cost money. Run `terraform des
 
 | Name | Type |
 |------|------|
+| [aws_autoscaling_group_tag.cluster_autoscaler_label_tags](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group_tag) | resource |
 | [aws_iam_policy.node_additional](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_role_policy_attachment.additional](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_key_pair.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/key_pair) | resource |
@@ -124,6 +126,9 @@ No inputs.
 | <a name="output_eks_managed_node_groups"></a> [eks\_managed\_node\_groups](#output\_eks\_managed\_node\_groups) | Map of attribute maps for all EKS managed node groups created |
 | <a name="output_eks_managed_node_groups_autoscaling_group_names"></a> [eks\_managed\_node\_groups\_autoscaling\_group\_names](#output\_eks\_managed\_node\_groups\_autoscaling\_group\_names) | List of the autoscaling group names created by EKS managed node groups |
 | <a name="output_fargate_profiles"></a> [fargate\_profiles](#output\_fargate\_profiles) | Map of attribute maps for all EKS Fargate Profiles created |
+| <a name="output_kms_key_arn"></a> [kms\_key\_arn](#output\_kms\_key\_arn) | The Amazon Resource Name (ARN) of the key |
+| <a name="output_kms_key_id"></a> [kms\_key\_id](#output\_kms\_key\_id) | The globally unique identifier for the key |
+| <a name="output_kms_key_policy"></a> [kms\_key\_policy](#output\_kms\_key\_policy) | The IAM resource policy set on the key |
 | <a name="output_node_security_group_arn"></a> [node\_security\_group\_arn](#output\_node\_security\_group\_arn) | Amazon Resource Name (ARN) of the node shared security group |
 | <a name="output_node_security_group_id"></a> [node\_security\_group\_id](#output\_node\_security\_group\_id) | ID of the node shared security group |
 | <a name="output_oidc_provider"></a> [oidc\_provider](#output\_oidc\_provider) | The OpenID Connect identity provider (issuer URL without leading `https://`) |
