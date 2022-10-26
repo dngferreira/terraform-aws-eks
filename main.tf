@@ -229,7 +229,7 @@ resource "aws_iam_openid_connect_provider" "oidc_provider" {
 locals {
   create_iam_role   = local.create && var.create_iam_role
   iam_role_name     = coalesce(var.iam_role_name, "${var.cluster_name}-cluster")
-  policy_arn_prefix = "arn:${data.aws_partition.current.partition}:iam::aws:policy"
+  policy_arn_prefix = "arn:aws:iam::aws:policy"
 
   cluster_encryption_policy_name = coalesce(var.cluster_encryption_policy_name, "${local.iam_role_name}-ClusterEncryption")
 
