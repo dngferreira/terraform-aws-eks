@@ -1,11 +1,5 @@
 provider "aws" {
   region = local.region
-
-  default_tags {
-    tags = {
-      ExampleDefaultTag = "ExampleDefaultValue"
-    }
-  }
 }
 
 provider "kubernetes" {
@@ -16,7 +10,7 @@ provider "kubernetes" {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
     # This requires the awscli to be installed locally where Terraform is executed
-    args = ["eks", "get-token", "--cluster-name", module.eks.cluster_id]
+    args = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
   }
 }
 
@@ -196,12 +190,14 @@ module "eks" {
     }
   }
 
-  # OIDC Identity provider
-  cluster_identity_providers = {
-    sts = {
-      client_id = "sts.amazonaws.com"
-    }
-  }
+  # Create a new cluster where both an identity provider and Fargate profile is created
+  # will result in conflicts since only one can take place at a time
+  # # OIDC Identity provider
+  # cluster_identity_providers = {
+  #   sts = {
+  #     client_id = "sts.amazonaws.com"
+  #   }
+  # }
 
   # aws-auth configmap
   manage_aws_auth_configmap = true
@@ -216,10 +212,30 @@ module "eks" {
 
   aws_auth_roles = [
     {
-      rolearn  = "arn:aws:iam::66666666666:role/role1"
-      username = "role1"
-      groups   = ["system:masters"]
+      rolearn  = module.eks_managed_node_group.iam_role_arn
+      username = "system:node:{{EC2PrivateDNSName}}"
+      groups = [
+        "system:bootstrappers",
+        "system:nodes",
+      ]
     },
+    {
+      rolearn  = module.self_managed_node_group.iam_role_arn
+      username = "system:node:{{EC2PrivateDNSName}}"
+      groups = [
+        "system:bootstrappers",
+        "system:nodes",
+      ]
+    },
+    {
+      rolearn  = module.fargate_profile.fargate_profile_pod_execution_role_arn
+      username = "system:node:{{SessionName}}"
+      groups = [
+        "system:bootstrappers",
+        "system:nodes",
+        "system:node-proxier",
+      ]
+    }
   ]
 
   aws_auth_users = [
@@ -251,7 +267,7 @@ module "eks_managed_node_group" {
   source = "../../modules/eks-managed-node-group"
 
   name            = "separate-eks-mng"
-  cluster_name    = module.eks.cluster_id
+  cluster_name    = module.eks.cluster_name
   cluster_version = module.eks.cluster_version
 
   vpc_id                            = module.vpc.vpc_id
@@ -261,6 +277,20 @@ module "eks_managed_node_group" {
     module.eks.cluster_security_group_id,
   ]
 
+  ami_type = "BOTTLEROCKET_x86_64"
+  platform = "bottlerocket"
+
+  # this will get added to what AWS provides
+  bootstrap_extra_args = <<-EOT
+    # extra args added
+    [settings.kernel]
+    lockdown = "integrity"
+
+    [settings.kubernetes.node-labels]
+    "label1" = "foo"
+    "label2" = "bar"
+  EOT
+
   tags = merge(local.tags, { Separate = "eks-managed-node-group" })
 }
 
@@ -268,7 +298,7 @@ module "self_managed_node_group" {
   source = "../../modules/self-managed-node-group"
 
   name                = "separate-self-mng"
-  cluster_name        = module.eks.cluster_id
+  cluster_name        = module.eks.cluster_name
   cluster_version     = module.eks.cluster_version
   cluster_endpoint    = module.eks.cluster_endpoint
   cluster_auth_base64 = module.eks.cluster_certificate_authority_data
@@ -282,8 +312,6 @@ module "self_managed_node_group" {
     module.eks.cluster_security_group_id,
   ]
 
-  use_default_tags = true
-
   tags = merge(local.tags, { Separate = "self-managed-node-group" })
 }
 
@@ -291,7 +319,7 @@ module "fargate_profile" {
   source = "../../modules/fargate-profile"
 
   name         = "separate-fargate-profile"
-  cluster_name = module.eks.cluster_id
+  cluster_name = module.eks.cluster_name
 
   subnet_ids = module.vpc.private_subnets
   selectors = [{
